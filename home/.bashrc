@@ -144,7 +144,9 @@ alias vi='nvim'
 alias svi='sudo vi'
 alias vis='nvim "+set si"'
 
-alias ip="ip -c"
+alias ip='ip -c'
+
+alias fetch='hyfetch'
 
 # Change directory aliases
 alias c='cd'
@@ -550,6 +552,7 @@ ver() {
 install_bashrc_support() {
 	local dtype
 	dtype=$(distribution)
+	distro=$(distributionA)
 
 	case $dtype in
 		"redhat")
@@ -559,7 +562,17 @@ install_bashrc_support() {
 			sudo zypper install multitail tree zoxide trash-cli fzf bash-completion fastfetch
 			;;
 		"debian")
-			sudo apt-get install multitail tree zoxide trash-cli fzf bash-completion
+            sudo apt-get update
+
+			sudo apt-get install multitail tree zoxide trash-cli fzf bash-completion libnotify-bin net-tools python3 python-is-python3
+
+			# Docker
+			curl -fsSL https://download.docker.com/linux/$distro/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+			sudo apt-get update
+			echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/$distro $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+			sudo apt-get install docker-ce docker-ce-cli containerd.io
+			sudo groupadd docker
+
 			# Fetch the latest fastfetch release URL for linux-amd64 deb file
 			FASTFETCH_URL=$(curl -s https://api.github.com/repos/fastfetch-cli/fastfetch/releases/latest | grep "browser_download_url.*linux-amd64.deb" | cut -d '"' -f 4)
 
@@ -568,44 +581,12 @@ install_bashrc_support() {
 
 			# Install the downloaded deb file using apt-get
 			sudo apt-get install /tmp/fastfetch_latest_amd64.deb
+
+            # Install hyfetch
+            pip install -U hyfetch
 			;;
 		"arch")
 			sudo paru multitail tree zoxide trash-cli fzf bash-completion fastfetch
-			;;
-		"slackware")
-			echo "No install support for Slackware"
-			;;
-		*)
-			echo "Unknown distribution"
-			;;
-	esac
-}
-
-defaultSetup() {
-	local dtype
-	dtype=$(distribution)
-	distro=$(distributionA)
-
-	case $dtype in
-		"redhat")
-			echo "No install support for redhat"
-			;;
-		"suse")
-			echo "No install support for suse"
-			;;
-		"debian")
-			# Default
-			sudo apt-get install libnotify-bin net-tools
-
-			# Docker
-			curl -fsSL https://download.docker.com/linux/$distro/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-			sudo apt-get update
-			echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/$distro $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-			sudo apt-get install docker-ce docker-ce-cli containerd.io
-			sudo groupadd docker
-			;;
-		"arch")
-			echo "No install support for arch"
 			;;
 		"slackware")
 			echo "No install support for Slackware"
