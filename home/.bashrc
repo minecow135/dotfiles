@@ -1,1 +1,0 @@
-/home/krivig/linuxtoolbox/mybash/.bashrc
